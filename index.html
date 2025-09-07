@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Metals Analytics Dashboard + AI (Open Source)</title>
+  <title>Metals Analytics Dashboard (Free, Open Source)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -10,7 +10,7 @@
 <body>
   <header>
     <h1>📊 Metals Analytics Dashboard</h1>
-    <p class="subtitle">Gold (XAU) & Silver (XAG) — multi-currency + open-source AI insights (no training)</p>
+    <p class="subtitle">Gold & Silver prices, news & AI sentiment — 100% free, no keys needed</p>
   </header>
 
   <main>
@@ -28,16 +28,12 @@
 
     <section class="cards">
       <div class="card">
-        <h2>Gold (XAU)</h2>
+        <h2>Gold (GC=F)</h2>
         <p id="gold-price">—</p>
       </div>
       <div class="card">
-        <h2>Silver (XAG)</h2>
+        <h2>Silver (SI=F)</h2>
         <p id="silver-price">—</p>
-      </div>
-      <div class="card">
-        <h2>AI Signal</h2>
-        <p id="ai-signal">—</p>
       </div>
     </section>
 
@@ -52,9 +48,17 @@
     </section>
 
     <footer>
-      <p>Hosted on GitHub Pages. Data auto-updated via GitHub Actions. See README for setup.</p>
+      <p>Hosted on GitHub Pages. Data auto-updated via GitHub Actions. AI runs in browser with transformers.js.</p>
     </footer>
   </main>
+
+  <!-- sentiment analysis in browser -->
+  <script type="module">
+    import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers';
+
+    window.sentimentPipeline = await pipeline("sentiment-analysis");
+    console.log("✅ Sentiment pipeline loaded");
+  </script>
 
   <script src="app.js"></script>
 </body>
