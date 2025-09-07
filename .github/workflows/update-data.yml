@@ -1,0 +1,72 @@
+name: Update Metals Data + AI Insights
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # every 6 hours
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl python3 python3-pip
+
+      - name: Fetch metals data
+        env:
+          METALS_API_KEY: ${{ secrets.METALS_API_KEY }}
+        run: |
+          mkdir -p data
+          curl -s "https://metals-api.com/api/latest?access_key=${METALS_API_KEY}&base=USD&symbols=XAU,XAG,INR,EUR,GBP,JPY" -o data/metals.json
+          echo "Fetched metals data"
+
+      - name: Fetch top business headlines (NewsAPI)
+        env:
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+        run: |
+          mkdir -p data
+          # Fetch top 5 business headlines
+          curl -s "https://newsapi.org/v2/top-headlines?category=business&pageSize=5&language=en&apiKey=${NEWS_API_KEY}" -o data/news_raw.json
+          # Extract titles into JSON array
+          cat data/news_raw.json | jq -r '.articles[].title' | jq -R -s -c 'split("\n")[:-1]' > data/news.json
+          echo "Fetched news headlines"
+
+      - name: Compute sentiment via Hugging Face Inference API
+        env:
+          HF_API_KEY: ${{ secrets.HF_API_KEY }}
+        run: |
+          python3 - <<'PY'
+import os, json, requests
+news_path = 'data/news.json'
+out_path = 'data/sentiment.json'
+hf_token = os.environ.get('HF_API_KEY')
+headers = {'Authorization': f'Bearer {hf_token}'} if hf_token else {}
+with open(news_path,'r') as f:
+    headlines = json.load(f)
+results = []
+for h in headlines:
+    payload = {'inputs': h}
+    try:
+        r = requests.post('https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english',
+                          headers=headers, json=payload, timeout=30)
+        r.raise_for_status()
+        results.append(r.json())
+    except Exception as e:
+        results.append([{"label":"ERROR","score":0}])
+with open(out_path,'w') as f:
+    json.dump(results, f, indent=2)
+print('Saved sentiment results')
+PY
+
+      - name: Commit data
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/metals.json data/news.json data/sentiment.json || true
+          git commit -m "Update metals, news, sentiment [ci skip]" || echo "No changes to commit"
+          git push origin HEAD:main || echo "Push failed (maybe no permission)"

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Metals Analytics Dashboard + AI (Open Source)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>📊 Metals Analytics Dashboard</h1>
+    <p class="subtitle">Gold (XAU) & Silver (XAG) — multi-currency + open-source AI insights (no training)</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <label for="currency">Currency: </label>
+      <select id="currency">
+        <option value="USD" selected>USD</option>
+        <option value="INR">INR</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+      </select>
+      <button id="refresh">Refresh Data</button>
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <h2>Gold (XAU)</h2>
+        <p id="gold-price">—</p>
+      </div>
+      <div class="card">
+        <h2>Silver (XAG)</h2>
+        <p id="silver-price">—</p>
+      </div>
+      <div class="card">
+        <h2>AI Signal</h2>
+        <p id="ai-signal">—</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📰 Latest News & Sentiment</h2>
+      <ul id="news-list" class="news-list"></ul>
+    </section>
+
+    <section>
+      <h2>📈 Price Chart</h2>
+      <canvas id="priceChart" height="120"></canvas>
+    </section>
+
+    <footer>
+      <p>Hosted on GitHub Pages. Data auto-updated via GitHub Actions. See README for setup.</p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
